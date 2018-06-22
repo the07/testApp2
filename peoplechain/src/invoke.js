@@ -23,12 +23,14 @@ var fabric_client = new Fabric_Client();
 // setup the fabric network
 var channel = fabric_client.newChannel('mychannel');
 var peer = fabric_client.newPeer('grpcs://localhost:7051', {
-	pem: readCryptoFile('peer.pem'),
+	pem: readCryptoFile('peer1.pem'),
+	'ssl-target-name-override': 'peer0.org1.example.com'
 });
 channel.addPeer(peer);
 var order = fabric_client.newOrderer('grpcs://localhost:7050', {
 	pem: readCryptoFile('Orderer.pem'),
-})
+	'ssl-target-name-override': 'orderer.example.com'
+});
 channel.addOrderer(order);
 
 //
@@ -70,8 +72,8 @@ Fabric_Client.newDefaultKeyValueStore({ path: store_path
 	var request = {
 		//targets: let default to the peer assigned to the client
 		chaincodeId: 'peoplechain',
-		fcn: "",
-		args: ["queryRecord", "1"],
+		fcn: "queryRecord",
+		args: ["1"],
 		txId: tx_id,
 	};
 
@@ -111,7 +113,10 @@ Fabric_Client.newDefaultKeyValueStore({ path: store_path
 		// get an eventhub once the fabric client has a user assigned. The user
 		// is required bacause the event registration must be signed
 		let event_hub = fabric_client.newEventHub();
-		event_hub.setPeerAddr('grpcs://localhost:7053');
+		event_hub.setPeerAddr('grpcs://localhost:7053', {
+			pem: readCryptoFile('peer1.pem'),
+			'ssl-target-name-override': 'peer0.org1.example.com'
+		});
 
 		// using resolve the promise so that result status may be processed
 		// under the then clause rather than having the catch clause process

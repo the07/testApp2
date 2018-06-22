@@ -4,11 +4,19 @@ var Fabric_Client = require('fabric-client');
 var path = require('path');
 var util = require('util');
 var os = require('os');
+var fs = require('fs');
+
+const basePath = path.resolve(__dirname, '../certs');
+const readCryptoFile = filename => fs.readFileSync(path.resolve(basePath, filename)).toString();
+
 
 var fabric_client = new Fabric_Client();
 
 var channel = fabric_client.newChannel('mychannel');
-var peer = fabric_client.newPeer('grpcs://localhost:7051');
+var peer = fabric_client.newPeer('grpcs://localhost:7051', {
+  pem: readCryptoFile('peer1.pem'),
+  'ssl-target-name-override': 'peer0.org1.example.com'
+});
 channel.addPeer(peer);
 
 var member_user = null;
