@@ -7,11 +7,11 @@ import (
 	"encoding/json"
 	"encoding/hex"
 	"crypto/rand"
-	"golang.org/x/crypto/nacl/box"
 	"io"
 
 	"github.com/hyperledger/fabric/core/chaincode/shim"
 	sc "github.com/hyperledger/fabric/protos/peer"
+	"golang.org/x/crypto/nacl/box"
 )
 
 type Record struct {
@@ -41,7 +41,7 @@ type CompanyRecord struct {
 	EndDate time.Time `json:"end_date`
 	Role string `json:"role"`
 	Details string `json:"details"`
-	Salary int `json:"details"`	
+	Salary int `json:"details"`
 }
 
 type user struct {
@@ -106,7 +106,7 @@ func (s *PeoplechainChaincode) createRecord(APIstub shim.ChaincodeStubInterface,
 
 	msg := []byte(dataByte)
 	encrypted := box.Seal(nonce[:], msg, &nonce, args[3], args[2])
-	
+
 	var record = Record { User: args[1], Organization: args[3], Status: "PENDING",	Hash: encrypted, Sign: "NULL"  }
 
 	recordAsBytes, _ := json.Marshal(record)
@@ -159,9 +159,9 @@ func (s *PeoplechainChaincode) queryAllRecord(APIstub shim.ChaincodeStubInterfac
 
 		buffer.WriteString("{\"Key\":")
 		buffer.WriteString("\"")
-		buffer.WriteString(queryResponse.Key)	
+		buffer.WriteString(queryResponse.Key)
 		buffer.WriteString("\"")
-		
+
 		buffer.WriteString(", \"Record\":")
 		buffer.WriteString(string(queryResponse.Value))
 		buffer.WriteString("}")
