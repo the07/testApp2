@@ -2,22 +2,64 @@ package main
 
 import (
 	"fmt"
-  "bytes"
-  "encoding/json"
+	"bytes"
+	"time"
+	"encoding/json"
+	"encoding/hex"
+	"crypto/rand"
+	"golang.org/x/crypto/nacl/box"
+	"io"
 
 	"github.com/hyperledger/fabric/core/chaincode/shim"
 	sc "github.com/hyperledger/fabric/protos/peer"
 )
 
-// PeoplechainChaincode example simple Chaincode implementation
-type PeoplechainChaincode struct {
+type Record struct {
+	User string `json:"user"`						// Record Owner Public Key
+	Organization string `json:"organization"`		// Signing entity Public Key
+	Status string `json:"status`					// Status of the record - if signed
+	Hash string `json:"hash"`						// Hash of the content of the record
+	Sign string `json:"string"`						// Verifiable signature of the Signing entity
+	//CreationTime time.Time `json:"creation_time"` // Time when record was created
 }
 
-type Record struct {
-	User string `json:"user"`
-  Timestamp string `json:"timestamp"`
-  Organization string `json:"organization"`
-  Status string `json:"status"`
+// Each record should be unique - Match hash if record already exists
+
+type GovernmentRecord struct {
+	Aadhar string `json:"aadhar"`
+	Pan string `json:"pan"`
+}
+
+type EducationRecord struct {
+	StartDate time.Time `json:"start_date"`
+	EndDate time.Time `json:"end_date"`
+	Grade int `json:"grade"`
+}
+
+type CompanyRecord struct {
+	StartDate time.Time `json:"start_date"`
+	EndDate time.Time `json:"end_date`
+	Role string `json:"role"`
+	Details string `json:"details"`
+	Salary int `json:"details"`	
+}
+
+type user struct {
+	PublicKey string `json:"public_key"`
+	Username string `json:"username"`
+	FirstName string `json:"first_name"`
+	LastName string `json:"last_name"`
+	RecordIndex []string `json:"record"`
+	Balance int `json:"balance"`
+}
+
+type organization struct {
+	PublicKey string `json:"public_key"`
+	OrgName string `json:"organization_name"`
+	Balance int `json:"balance"`
+}
+
+type PeoplechainChaincode struct {
 }
 
 func (s *PeoplechainChaincode) Init(APIstub shim.ChaincodeStubInterface) sc.Response {
@@ -25,45 +67,69 @@ func (s *PeoplechainChaincode) Init(APIstub shim.ChaincodeStubInterface) sc.Resp
 }
 
 func (s *PeoplechainChaincode) Invoke(APIstub shim.ChaincodeStubInterface) sc.Response {
+	function, args := APIstub.GetFunctionAndParameters()
+	if function == "createRecord" {
+		return s.createRecord(APIstub, args)
+	} else if function == "queryRecord" {
+		return s.queryRecord(APIstub, args)
+	} else if function == "queryAllRecord" {
+		return s.queryAllRecord(APIstub)
+	} else if function == "createUser" {
+		return s.createUser(APIstub, args)
+	} else if function == "createOrganization" {
+		return s.createOrganization(APIstub, args)
+	} else if function == "verifyRecord" {
+		return s.verifyRecord(APIstub, args)
+	} else if function == "signRecord" {
+		return s.signRecord(APIstub, args)
+	}
 
-  function, args := APIstub.GetFunctionAndParameters()
-  if function == "queryRecord" {
-    return s.queryRecord(APIstub, args)
-  } else if function == "createRecord" {
-    return s.createRecord(APIstub, args)
-  } else if function == "queryAllRecord" {
-    return s.queryAllRecord(APIstub)
-  }
-
-  return shim.Error("Invalid function name")
-}
-
-func (s *PeoplechainChaincode) queryRecord(APIstub shim.ChaincodeStubInterface, args []string) sc.Response {
-  if len(args) != 1 {
-    return shim.Error("Incorrect number of arguments. Expecting 1")
-  }
-
-  recordAsBytes, _ := APIstub.GetState(args[0])
-  if recordAsBytes == nil {
-    return shim.Error("Could not find record")
-  }
-  return shim.Success(recordAsBytes)
+	return shim.Error("Invalid function name")
 }
 
 func (s *PeoplechainChaincode) createRecord(APIstub shim.ChaincodeStubInterface, args []string) sc.Response {
-  if len(args) != 5 {
-    return shim.Error("Incorrect number of arguments, expecting 5")
-  }
+	if len(args) != 5 {
+		return shim.Error("Incorrect number of arguments, expecting 5")
+	}
 
-  var record = Record{ User: args[1], Timestamp: args[2], Organization: args[3], Status: args[4] }
+	// arguments - key, userPublicKey, userPrivateKey, orgPublicKey, datajson
 
-  recordAsBytes, _ := json.Marshal(record)
-  err := APIstub.PutState(args[0], recordAsBytes)
-  if err != nil {
-    return shim.Error(fmt.Sprintf("Failed to create record: %s", args[0]))
-  }
+	var nonce [24]byte
+	if _, err := io.ReadFull(rand.Reader, nonce[:]);  err != nil {
+		panic(err)
+	}
 
-  return shim.Success(nil)
+	dataByte, err := json.Marshal(args[4])
+	if err != nil {
+		panic(err)
+	}
+
+	msg := []byte(dataByte)
+	encrypted := box.Seal(nonce[:], msg, &nonce, args[3], args[2])
+	
+	var record = Record { User: args[1], Organization: args[3], Status: "PENDING",	Hash: encrypted, Sign: "NULL"  }
+
+	recordAsBytes, _ := json.Marshal(record)
+
+	err := APIstub.PutState(args[0], recordAsBytes)
+	if err != nil {
+		return shim.Error(fmt.Sprintf("Failed to create record: %s", args[0]))
+	}
+
+	return shim.Success(nil)
+}
+
+func (s *PeoplechainChaincode) queryRecord(APIstub shim.ChaincodeStubInterface, args []string) sc.Response {
+	if len(args) != 1{
+		return shim.Error("Incorrect number of arguments, expecting 1")
+	}
+
+	recordAsBytes, _ := APIstub.GetState(agrs[0])
+	if recordAsBytes == nil {
+		return shim.Error("Could not find record")
+	}
+
+	return shim.Success(recordAsBytes)
 }
 
 func (s *PeoplechainChaincode) queryAllRecord(APIstub shim.ChaincodeStubInterface) sc.Response {
@@ -77,7 +143,6 @@ func (s *PeoplechainChaincode) queryAllRecord(APIstub shim.ChaincodeStubInterfac
 	}
 	defer resultsIterator.Close()
 
-	// buffer is a JSON array containing QueryResults
 	var buffer bytes.Buffer
 	buffer.WriteString("[")
 
@@ -87,17 +152,17 @@ func (s *PeoplechainChaincode) queryAllRecord(APIstub shim.ChaincodeStubInterfac
 		if err != nil {
 			return shim.Error(err.Error())
 		}
-		// Add comma before array members,suppress it for the first array member
+
 		if bArrayMemberAlreadyWritten == true {
 			buffer.WriteString(",")
 		}
+
 		buffer.WriteString("{\"Key\":")
 		buffer.WriteString("\"")
-		buffer.WriteString(queryResponse.Key)
+		buffer.WriteString(queryResponse.Key)	
 		buffer.WriteString("\"")
-
+		
 		buffer.WriteString(", \"Record\":")
-		// Record is a JSON object, so we write as-is
 		buffer.WriteString(string(queryResponse.Value))
 		buffer.WriteString("}")
 		bArrayMemberAlreadyWritten = true
@@ -107,6 +172,68 @@ func (s *PeoplechainChaincode) queryAllRecord(APIstub shim.ChaincodeStubInterfac
 	fmt.Printf("- queryAllRecord:\n%s\n", buffer.String())
 
 	return shim.Success(buffer.Bytes())
+}
+
+func (s *PeoplechainChaincode) createUser(APIstub shim.ChaincodeStubInterface, args []string) sc.Response {
+	if len(args) != 3 {
+		return shim.Error("Incorrect number of arguments, expecting 3")
+	}
+
+	reader := rand.Reader
+	userPublicKey, userPrivateKey, err := box.GenerateKey(reader)
+	if err != nil {
+		panic(err)
+	}
+
+	key := APIstub.createCompositeKey("user", args[0])
+	var user_object = user{PublicKey: userPublicKey, Username: args[0], FirstName: args[1], LastName: args[2], RecordIndex: []string, Balance: 0}
+
+	userAsByte, _ := json.Marshal(user_object)
+	err := APIstub.PutState(key, userAsByte)
+	if err != nil {
+		return shim.Error(fmt.Sprintf("Failed to create user: %s", key))
+	}
+
+	return shim.Success(userPrivateKey)
+}
+
+func (s *PeoplechainChaincode) createOrganization(APIstub shim.ChaincodeStubInterface, args []string) sc.Response {
+	if len(args) != 1 {
+		return shim.Error("Incorrect number of arguments, expecting 1")
+	}
+
+	reader := rand.Reader
+	organizationPublicKey, organizationPrivateKey, err := box.GenerateKey(reader)
+	if err != nil {
+		panic(err)
+	}
+
+	key := APIstub.createCompositeKey("organization", args[0])
+	var org_object = organization{PublicKey: organizationPublicKey, OrgName: args[0], Balance: 0}
+
+	orgAsByte, _ := json.Marshal(org_object)
+	err := APIstub.PutState(key, orgAsByte)
+	if err != nil {
+		return shim.Error(fmt.Sprintf("Failed to create organization: %s", key))
+	}
+
+	return shim.Success(organizationPrivateKey)
+}
+
+func (s *PeoplechainChaincode) verifyRecord(APIstub shim.ChaincodeStubInterface, args []string) sc.Response {
+	if len(args) != 1 {
+		return shim.Error("Incorrect number of arguments, expecting 1")
+	}
+
+	return shim.Success(nil)
+}
+
+func (s *PeoplechainChaincode) signRecord(APIstub shim.ChaincodeStubInterface, args []string) sc.Response {
+	if len(args) != 1 {
+		return shim.Error("Incorrect numberof arguments, expecting 1")
+	}
+
+	return shim.Success(nil)
 }
 
 func main() {
