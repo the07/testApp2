@@ -104,15 +104,18 @@ func (s *PeoplechainChaincode) createRecord(APIstub shim.ChaincodeStubInterface,
 		panic(err)
 	}
 
-	userPublicKeyByte, _ := hex.DecodeString(args[1])
 	userPrivateKeyByte, _ := hex.DecodeString(args[2])
 	orgPublicKeyByte, _ := hex.DecodeString(args[3])
 
-	msg := []byte(dataByte)
-	encrypted := box.Seal(nonce[:], msg, &nonce, orgPublicKeyByte[:], userPrivateKeyByte[:])
-	encrypted := hex.EncodeToString(encrypted[:])
+	var key1, key2 [32]byte
+	copy(key1[:], userPrivateKeyByte)
+	copy(key2[:], orgPublicKeyByte)
 
-	var record = Record { User: args[1], Organization: args[3], Status: "PENDING",	Hash: encrypted, Sign: "NULL"  }
+	msg := []byte(dataByte)
+	encrypted := box.Seal(nonce[:], msg, &nonce, &key2, &key1)
+	hash := hex.EncodeToString(encrypted[:])
+
+	var record = Record { User: args[1], Organization: args[3], Status: "PENDING",	Hash: hash, Sign: "NULL"  }
 
 	recordAsBytes, _ := json.Marshal(record)
 
