@@ -119,8 +119,8 @@ func (s *PeoplechainChaincode) createRecord(APIstub shim.ChaincodeStubInterface,
 
 	recordAsBytes, _ := json.Marshal(record)
 
-	err := APIstub.PutState(args[0], recordAsBytes)
-	if err != nil {
+	err1 := APIstub.PutState(args[0], recordAsBytes)
+	if err1 != nil {
 		return shim.Error(fmt.Sprintf("Failed to create record: %s", args[0]))
 	}
 
@@ -132,7 +132,7 @@ func (s *PeoplechainChaincode) queryRecord(APIstub shim.ChaincodeStubInterface, 
 		return shim.Error("Incorrect number of arguments, expecting 1")
 	}
 
-	recordAsBytes, _ := APIstub.GetState(agrs[0])
+	recordAsBytes, _ := APIstub.GetState(args[0])
 	if recordAsBytes == nil {
 		return shim.Error("Could not find record")
 	}
@@ -195,8 +195,8 @@ func (s *PeoplechainChaincode) createUser(APIstub shim.ChaincodeStubInterface, a
 
 	userPublicKeyHex := hex.EncodeToString(userPublicKey[:])
 	userPrivateKeyHex := hex.EncodeToString(userPrivateKey[:])
-
-	key := APIstub.CreateCompositeKey("user", args[0])
+	attributes := [args[0]]
+	key := APIstub.CreateCompositeKey("user", attributes)
 	var user_object = user{PublicKey: userPublicKeyHex, Username: args[0], FirstName: args[1], LastName: args[2], RecordIndex: []string, Balance: 0}
 
 	userAsByte, _ := json.Marshal(user_object)
