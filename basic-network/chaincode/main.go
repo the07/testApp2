@@ -104,8 +104,13 @@ func (s *PeoplechainChaincode) createRecord(APIstub shim.ChaincodeStubInterface,
 		panic(err)
 	}
 
+	userPublicKeyByte, _ := hex.DecodeString(args[1])
+	userPrivateKeyByte, _ := hex.DecodeString(args[2])
+	orgPublicKeyByte, _ := hex.DecodeString(args[3])
+
 	msg := []byte(dataByte)
-	encrypted := box.Seal(nonce[:], msg, &nonce, args[3], args[2])
+	encrypted := box.Seal(nonce[:], msg, &nonce, orgPublicKeyByte, userPrivateKeyByte)
+	encrypted := hex.EncodeToString(encrypted)
 
 	var record = Record { User: args[1], Organization: args[3], Status: "PENDING",	Hash: encrypted, Sign: "NULL"  }
 
@@ -185,8 +190,11 @@ func (s *PeoplechainChaincode) createUser(APIstub shim.ChaincodeStubInterface, a
 		panic(err)
 	}
 
-	key := APIstub.createCompositeKey("user", args[0])
-	var user_object = user{PublicKey: userPublicKey, Username: args[0], FirstName: args[1], LastName: args[2], RecordIndex: []string, Balance: 0}
+	userPublicKeyHex := hex.EncodeToString(userPublicKey[:])
+	userPrivateKeyHex := hex.EncodeToString(userPrivateKey[:])
+
+	key := APIstub.CreateCompositeKey("user", args[0])
+	var user_object = user{PublicKey: userPublicKeyHex, Username: args[0], FirstName: args[1], LastName: args[2], RecordIndex: []string, Balance: 0}
 
 	userAsByte, _ := json.Marshal(user_object)
 	err := APIstub.PutState(key, userAsByte)
@@ -194,7 +202,7 @@ func (s *PeoplechainChaincode) createUser(APIstub shim.ChaincodeStubInterface, a
 		return shim.Error(fmt.Sprintf("Failed to create user: %s", key))
 	}
 
-	return shim.Success(userPrivateKey)
+	return shim.Success(userPrivateKeyHex)
 }
 
 func (s *PeoplechainChaincode) createOrganization(APIstub shim.ChaincodeStubInterface, args []string) sc.Response {
@@ -208,8 +216,11 @@ func (s *PeoplechainChaincode) createOrganization(APIstub shim.ChaincodeStubInte
 		panic(err)
 	}
 
-	key := APIstub.createCompositeKey("organization", args[0])
-	var org_object = organization{PublicKey: organizationPublicKey, OrgName: args[0], Balance: 0}
+	organizationPublicKeyHex := hex.EncodeToString(organizationPublicKey[:])
+	organizationPrivateKeyHex := hex.EncodeToString(organizationPrivateKey[:])
+
+	key := APIstub.CreateCompositeKey("organization", args[0])
+	var org_object = organization{PublicKey: organizationPublicKeyHex, OrgName: args[0], Balance: 0}
 
 	orgAsByte, _ := json.Marshal(org_object)
 	err := APIstub.PutState(key, orgAsByte)
@@ -217,7 +228,7 @@ func (s *PeoplechainChaincode) createOrganization(APIstub shim.ChaincodeStubInte
 		return shim.Error(fmt.Sprintf("Failed to create organization: %s", key))
 	}
 
-	return shim.Success(organizationPrivateKey)
+	return shim.Success(organizationPrivateKeyHex)
 }
 
 func (s *PeoplechainChaincode) verifyRecord(APIstub shim.ChaincodeStubInterface, args []string) sc.Response {
