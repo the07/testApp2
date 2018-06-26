@@ -195,9 +195,9 @@ func (s *PeoplechainChaincode) createUser(APIstub shim.ChaincodeStubInterface, a
 
 	userPublicKeyHex := hex.EncodeToString(userPublicKey[:])
 	userPrivateKeyHex := hex.EncodeToString(userPrivateKey[:])
-	attributes := [1]string{args[0]}
+	attributes := []string{args[0]}
 	key := APIstub.CreateCompositeKey("user", attributes)
-	var user_object = user{PublicKey: userPublicKeyHex, Username: args[0], FirstName: args[1], LastName: args[2], RecordIndex: attributes, Balance: 0}
+	var user_object = user{PublicKey: userPublicKeyHex, Username: args[0], FirstName: args[1], LastName: args[2], RecordIndex: []string, Balance: 0}
 
 	userAsByte, _ := json.Marshal(user_object)
 	err2 := APIstub.PutState(key, userAsByte)
