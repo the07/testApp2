@@ -109,8 +109,8 @@ func (s *PeoplechainChaincode) createRecord(APIstub shim.ChaincodeStubInterface,
 	orgPublicKeyByte, _ := hex.DecodeString(args[3])
 
 	msg := []byte(dataByte)
-	encrypted := box.Seal(nonce[:], msg, &nonce, orgPublicKeyByte, userPrivateKeyByte)
-	encrypted := hex.EncodeToString(encrypted)
+	encrypted := box.Seal(nonce[:], msg, &nonce, orgPublicKeyByte[:], userPrivateKeyByte[:])
+	encrypted := hex.EncodeToString(encrypted[:])
 
 	var record = Record { User: args[1], Organization: args[3], Status: "PENDING",	Hash: encrypted, Sign: "NULL"  }
 
