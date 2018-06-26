@@ -201,9 +201,6 @@ func (s *PeoplechainChaincode) createUser(APIstub shim.ChaincodeStubInterface, a
 	key, _ := APIstub.CreateCompositeKey("user", attributes)
 	var user_object = user{PublicKey: userPublicKeyHex, Username: args[0], FirstName: args[1], LastName: args[2], RecordIndex: index_list, Balance: 0}
 	userPrivateKeyHex := hex.EncodeToString(userPrivateKey[:])
-	attributes := []string{args[0]}
-	key := APIstub.CreateCompositeKey("user", attributes)
-	var user_object = user{PublicKey: userPublicKeyHex, Username: args[0], FirstName: args[1], LastName: args[2], RecordIndex: []string, Balance: 0}
 
 	userAsByte, _ := json.Marshal(user_object)
 	err2 := APIstub.PutState(key, userAsByte)
@@ -213,7 +210,7 @@ func (s *PeoplechainChaincode) createUser(APIstub shim.ChaincodeStubInterface, a
 
 	key_pair := map[string]string{
 		"pubkey": userPublicKeyHex,
-		"privkey": userPrivateKeyHex
+		"privkey": userPrivateKeyHex,
 	}
 
 	keyByte, _ := json.Marshal(key_pair)
@@ -246,7 +243,7 @@ func (s *PeoplechainChaincode) createOrganization(APIstub shim.ChaincodeStubInte
 
 	key_pair := map[string]string{
 		"pubkey": organizationPublicKeyHex,
-		"privkey": organizationPrivateKeyHex
+		"privkey": organizationPrivateKeyHex,
 	}
 
 	keyByte, _ := json.Marshal(key_pair)
