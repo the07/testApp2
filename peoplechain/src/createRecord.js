@@ -73,7 +73,7 @@ Fabric_Client.newDefaultKeyValueStore({ path: store_path
 		//targets: let default to the peer assigned to the client
 		chaincodeId: 'peoplechain',
 		fcn: "createRecord",
-		args: ["1", "user1", "UtNhUKtrf4qSYTzf44FFIhz71tEPWP3uCtbIRAoXHW4=", "Singh", "{PAN: \"asdfsdfsdf\",}"],
+		args: ["1", "10caad3ee19b1ba30b6e2801f8540ddba23a4e881671a90945d97aaa6e8f4942", "bccb267b9cc1d666125e36893a5062bbcb170a3c87125060d6eaed63070c48f0", "beb4e79d0bdb070eae78750223c668df0bc64fcdb53a34b67b05cf659e658108", "{PAN: \"asdfsdfsdf\",}"],
 		txId: tx_id,
 	};
 

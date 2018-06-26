@@ -87,7 +87,7 @@ Fabric_Client.newDefaultKeyValueStore({ path: store_path
 		proposalResponses[0].response.status === 200) {
 			isProposalGood = true;
 			console.log('Transaction proposal was good');
-			console.log(proposalResponses[0].response.payload.toString('base64'))
+			console.log(proposalResponses[0].response.payload.toString())
 		} else {
 			console.error('Transaction proposal was bad');
 		}

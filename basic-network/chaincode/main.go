@@ -19,7 +19,7 @@ type Record struct {
 	Organization string `json:"organization"`		// Signing entity Public Key
 	Status string `json:"status`					// Status of the record - if signed
 	Hash string `json:"hash"`						// Hash of the content of the record
-	Sign string `json:"string"`						// Verifiable signature of the Signing entity
+	Sign string `json:"sign"`						// Verifiable signature of the Signing entity
 	//CreationTime time.Time `json:"creation_time"` // Time when record was created
 }
 
@@ -59,6 +59,19 @@ type organization struct {
 	Balance int `json:"balance"`
 }
 
+type Payment struct {
+	From string `json:"from"`
+	To string `json:"to"`
+	Amout string `json:"amount"`
+}
+
+type RecordAccess struct {
+	Id string `json:"id"`
+	PublicKey string `json:"public_key"`
+	data string `json:"data"`
+	Status string `json:"status"`
+}
+
 type PeoplechainChaincode struct {
 }
 
@@ -82,6 +95,10 @@ func (s *PeoplechainChaincode) Invoke(APIstub shim.ChaincodeStubInterface) sc.Re
 		return s.verifyRecord(APIstub, args)
 	} else if function == "signRecord" {
 		return s.signRecord(APIstub, args)
+	} else if function == "decryptRecord" {
+		return s.decryptRecord(APIstub, args)
+	} else if function == "declineRecord" {
+		return s.declineRecord(APIstub, args)
 	}
 
 	return shim.Error("Invalid function name")
@@ -122,6 +139,25 @@ func (s *PeoplechainChaincode) createRecord(APIstub shim.ChaincodeStubInterface,
 	err1 := APIstub.PutState(args[0], recordAsBytes)
 	if err1 != nil {
 		return shim.Error(fmt.Sprintf("Failed to create record: %s", args[0]))
+	}
+	attributes := []string{"user1"}
+	key, _ := APIstub.CreateCompositeKey("user", attributes)
+	userAsByte, _ := APIstub.GetState(key)
+
+	if userAsByte == nil {
+		return shim.Error("Could not locate user")
+	}
+
+	user_1 := user{}
+	json.Unmarshal(userAsByte, &user_1)
+
+	user_1.RecordIndex = append(user_1.RecordIndex, args[0])
+
+	userAsBytes, _ := json.Marshal(user_1)
+	err4 := APIstub.PutState(key, userAsBytes)
+
+	if err4 != nil {
+		return shim.Error("Failed to update User Record Index")
 	}
 
 	return shim.Success(nil)
@@ -265,6 +301,47 @@ func (s *PeoplechainChaincode) signRecord(APIstub shim.ChaincodeStubInterface, a
 	}
 
 	return shim.Success(nil)
+}
+
+func (s *PeoplechainChaincode) declineRecord(APIstub shim.ChaincodeStubInterface, args []string) sc.Response {
+	if len(args) != 1 {
+			return shim.Error("Incorrect number of arguments, expecting 1")
+	}
+
+	return shim.Success(nil)
+}
+
+func (s *PeoplechainChaincode) decryptRecord(APIstub shim.ChaincodeStubInterface, args []string) sc.Response {
+	if len(args) != 2 {
+		return shim.Error("Incorrect number of arguments, expecting 2")
+	}
+
+	recordAsByte, _ := APIstub.GetState(args[0])
+	if recordAsByte == nil {
+		return shim.Error("Record not found")
+	}
+	record := Record{}
+	json.Unmarshal(recordAsByte, &record)
+
+	hash := record.Hash
+	var decryptNonce [24]byte
+
+	hashByte, _ := hex.DecodeString(hash)
+	copy(decryptNonce[:], hashByte[:24])
+
+	var key1, key2 [32]byte
+	key1Byte, _ := hex.DecodeString(record.User)
+	key2Byte, _ := hex.DecodeString(args[1])
+
+	copy(key1[:], key1Byte)
+	copy(key2[:], key2Byte)
+
+	decrypted, ok := box.Open(nil, hashByte[24:], &decryptNonce, &key1, &key2)
+	if !ok {
+		return shim.Error("Failed to decrypt")
+	}
+	data := []byte(decrypted)
+	return shim.Success(data)
 }
 
 func main() {
