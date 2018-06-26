@@ -195,13 +195,13 @@ func (s *PeoplechainChaincode) createUser(APIstub shim.ChaincodeStubInterface, a
 
 	userPublicKeyHex := hex.EncodeToString(userPublicKey[:])
 	userPrivateKeyHex := hex.EncodeToString(userPrivateKey[:])
-	attributes := [args[0]]
+	attributes := [1]string{args[0]}
 	key := APIstub.CreateCompositeKey("user", attributes)
-	var user_object = user{PublicKey: userPublicKeyHex, Username: args[0], FirstName: args[1], LastName: args[2], RecordIndex: []string, Balance: 0}
+	var user_object = user{PublicKey: userPublicKeyHex, Username: args[0], FirstName: args[1], LastName: args[2], RecordIndex: attributes, Balance: 0}
 
 	userAsByte, _ := json.Marshal(user_object)
-	err := APIstub.PutState(key, userAsByte)
-	if err != nil {
+	err2 := APIstub.PutState(key, userAsByte)
+	if err2 != nil {
 		return shim.Error(fmt.Sprintf("Failed to create user: %s", key))
 	}
 
@@ -226,8 +226,8 @@ func (s *PeoplechainChaincode) createOrganization(APIstub shim.ChaincodeStubInte
 	var org_object = organization{PublicKey: organizationPublicKeyHex, OrgName: args[0], Balance: 0}
 
 	orgAsByte, _ := json.Marshal(org_object)
-	err := APIstub.PutState(key, orgAsByte)
-	if err != nil {
+	err3 := APIstub.PutState(key, orgAsByte)
+	if err3 != nil {
 		return shim.Error(fmt.Sprintf("Failed to create organization: %s", key))
 	}
 
