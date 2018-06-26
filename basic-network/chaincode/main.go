@@ -194,19 +194,16 @@ func (s *PeoplechainChaincode) createUser(APIstub shim.ChaincodeStubInterface, a
 	}
 
 	userPublicKeyHex := hex.EncodeToString(userPublicKey[:])
-<<<<<<< HEAD
 
 	username := args[0]
 	attributes := []string{username}
 	index_list := []string{}
 	key, _ := APIstub.CreateCompositeKey("user", attributes)
 	var user_object = user{PublicKey: userPublicKeyHex, Username: args[0], FirstName: args[1], LastName: args[2], RecordIndex: index_list, Balance: 0}
-=======
 	userPrivateKeyHex := hex.EncodeToString(userPrivateKey[:])
 	attributes := []string{args[0]}
 	key := APIstub.CreateCompositeKey("user", attributes)
 	var user_object = user{PublicKey: userPublicKeyHex, Username: args[0], FirstName: args[1], LastName: args[2], RecordIndex: []string, Balance: 0}
->>>>>>> 675a8102329dcb6b1817c3320b5e65a8fb174892
 
 	userAsByte, _ := json.Marshal(user_object)
 	err2 := APIstub.PutState(key, userAsByte)
@@ -214,7 +211,14 @@ func (s *PeoplechainChaincode) createUser(APIstub shim.ChaincodeStubInterface, a
 		return shim.Error(fmt.Sprintf("Failed to create user: %s", key))
 	}
 
-	return shim.Success(userPrivateKey[:])
+	key_pair := map[string]string{
+		"pubkey": userPublicKeyHex,
+		"privkey": userPrivateKeyHex
+	}
+
+	keyByte, _ := json.Marshal(key_pair)
+
+	return shim.Success(keyByte)
 }
 
 func (s *PeoplechainChaincode) createOrganization(APIstub shim.ChaincodeStubInterface, args []string) sc.Response {
@@ -229,7 +233,7 @@ func (s *PeoplechainChaincode) createOrganization(APIstub shim.ChaincodeStubInte
 	}
 
 	organizationPublicKeyHex := hex.EncodeToString(organizationPublicKey[:])
-
+	organizationPrivateKeyHex := hex.EncodeToString(organizationPrivateKey[:])
 	attributes := []string{args[0]}
 	key, _ := APIstub.CreateCompositeKey("organization", attributes)
 	var org_object = organization{PublicKey: organizationPublicKeyHex, OrgName: args[0], Balance: 0}
@@ -240,7 +244,14 @@ func (s *PeoplechainChaincode) createOrganization(APIstub shim.ChaincodeStubInte
 		return shim.Error(fmt.Sprintf("Failed to create organization: %s", key))
 	}
 
-	return shim.Success(organizationPrivateKey[:])
+	key_pair := map[string]string{
+		"pubkey": organizationPublicKeyHex,
+		"privkey": organizationPrivateKeyHex
+	}
+
+	keyByte, _ := json.Marshal(key_pair)
+
+	return shim.Success(keyByte)
 }
 
 func (s *PeoplechainChaincode) verifyRecord(APIstub shim.ChaincodeStubInterface, args []string) sc.Response {
