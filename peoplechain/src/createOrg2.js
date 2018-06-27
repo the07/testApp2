@@ -73,7 +73,7 @@ Fabric_Client.newDefaultKeyValueStore({ path: store_path
 		//targets: let default to the peer assigned to the client
 		chaincodeId: 'peoplechain',
 		fcn: "createOrganization",
-		args: ["Quess"],
+		args: ["Heptagon"],
 		txId: tx_id,
 	};
 

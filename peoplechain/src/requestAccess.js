@@ -72,8 +72,8 @@ Fabric_Client.newDefaultKeyValueStore({ path: store_path
 	var request = {
 		//targets: let default to the peer assigned to the client
 		chaincodeId: 'peoplechain',
-		fcn: "createOrganization",
-		args: ["Quess"],
+		fcn: "requestAccess",
+		args: ["1", "ca741659836d28bfdcc1a32d43473f3d0c7eed5658d37e0c5a79c065de67ad6a"],
 		txId: tx_id,
 	};
 
@@ -87,7 +87,6 @@ Fabric_Client.newDefaultKeyValueStore({ path: store_path
 		proposalResponses[0].response.status === 200) {
 			isProposalGood = true;
 			console.log('Transaction proposal was good');
-			console.log(proposalResponses[0].response.payload.toString())
 		} else {
 			console.error('Transaction proposal was bad');
 		}

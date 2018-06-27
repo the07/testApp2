@@ -46,8 +46,8 @@ Fabric_Client.newDefaultKeyValueStore({ path: store_path
   const request = {
     chaincodeId: 'peoplechain',
     txId: tx_id,
-    fcn: 'decryptRecord',
-    args: ['1', '1313ee7645899c1c8cdd5dcb5a99799adb0eb162f954f1de60c338f139b20bcd']
+    fcn: 'decryptRecordAccess',
+    args: ['1', 'ca741659836d28bfdcc1a32d43473f3d0c7eed5658d37e0c5a79c065de67ad6a', '2907853045038c7def4ea08c050ad253798ad77d0b26ec8f840e4ac26b00dd1d']
   };
 
   return channel.queryByChaincode(request);
