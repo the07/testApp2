@@ -1,0 +1,133 @@
+<!-- SPDX-License-Identifier: Apache-2.0 -->
+
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Peoplechain POC</title>
+
+    <!-- require jquery and bootstrap scripts -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.0/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.3/angular.min.js"></script>
+
+    <!-- adding style here -->
+    <style type="text/css">
+      header{
+        background-color: lightgray;
+        font-size:20px;
+        padding:15px;
+      }
+      header, .form-group{
+        margin-bottom: 3%;
+      }
+      .form-group{
+        width:50%;
+      }
+      #body{
+        margin-left:3%;
+        margin-right:3%;
+      }
+      .form-control{
+        margin: 8px;
+      }
+      #right_header{
+        width:20%;
+        font-size:15px;
+        margin-right:0px;
+      }
+      #left_header{
+        margin-left:0;
+        width:40%;
+        display:inline-block;
+      }
+      #id {
+        width:49%;
+        display: inline-block;
+      }
+      table {
+          font-family: arial, sans-serif;
+          border-collapse: collapse;
+          width: 100%;
+      }
+      td, th {
+          border: 1px solid #dddddd;
+          text-align: left;
+          padding: 8px;
+      }
+      tr:nth-child(even) {
+          background-color: #dddddd;
+      }
+    </style>
+  </head>
+  <body ng-app="application" ng-controller="appController">
+    <header>
+      <div id="left_header">Peoplechain POC</div>
+    </header>
+
+    <div id="body">
+      <div class="form-group">
+        <label>Query All Records</label>
+        <p><input id="queryAllRecord" type="submit" value="Query" class="btn btn-primary" ng-click="queryAllRecord()"></p>
+      </div>
+
+      <table id="all_tuna" class="table" align="center">
+
+        <tr>
+          <th>ID</th>
+          <th>User</th>
+          <th>Timestamp</th>
+          <th>Organization</th>
+          <th>Status</th>
+        </tr>
+
+        <tr ng-repeat="tuna in all_tuna">
+          <td>{{tuna.Key}}</td>
+          <td>{{tuna.user}}</td>
+          <td>{{tuna.timestamp}}</td>
+          <td>{{tuna.organization}}</td>
+          <td>{{tuna.status}}</td>
+        </tr>
+      </table>
+
+      <div class="form-group">
+        <label>Query a Specific Record</label><br>
+        <h5 style="color:red;margin-bottom:2%" id="error_query">Error: Please enter a valid Record Id</h5>
+
+        Enter a record number: <input id="createName" class="form-control" type="text" placeholder="Ex: 3" ng-model="tuna_id">
+        <input id="querySubmit" type="submit" value="Query" class="btn btn-primary" ng-click="queryRecord()">
+      </div>
+
+      <table id="query_tuna" class="table" align="center">
+
+        <tr>
+          <th>User</th>
+          <th>Timestamp</th>
+          <th>Organization</th>
+          <th>Status</th>
+        </tr>
+
+        <tr>
+          <td>{{query_tuna.user}}</td>
+          <td>{{query_tuna.timestamp}}</td>
+          <td>{{query_tuna.organization}}</td>
+          <td>{{query_tuna.status}}</td>
+        </tr>
+      </table>
+
+      <div class="form-group">
+        <label>Create Record</label>
+        <h5 style="color:green;margin-bottom:2%" id="success_create">Success! Tx ID: {{create_tuna}}</h5>
+        <br>
+        Enter id: <input class="form-control" type="text" placeholder="Ex: 11" ng-model="tuna.id">
+        Enter name: <input class="form-control" type="text" placeholder="Ex: Gaurav" ng-model="tuna.user">
+        Enter timestamp: <input class="form-control" type="text" placeholder="Ex: 4982342301" ng-model="tuna.timestamp">
+        Enter organization: <input class="form-control" type="text" placeholder="Ex: Heptagon" ng-model="tuna.organization">
+        <input id="createSubmit" type="submit" value="Create" class="btn btn-primary" ng-click="createRecord()">
+      </div>
+
+    </div>
+  </body>
+    <!-- requiring the angular page -->
+    <script type="text/javascript" src="app.js"> </script>
+</html>

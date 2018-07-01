@@ -69,6 +69,6 @@ Fabric_Client.newDefaultKeyValueStore({ path: store_path
     console.error('Failed to register: ' + err);
 	if(err.toString().indexOf('Authorization') > -1) {
 		console.error('Authorization failures may be caused by having admin credentials from a previous CA instance.\n' +
-		'Try again after deleting the contents of the store directory '+store_path);
+		'Try again after deleting the contents of the store directory '+ store_path);
 	}
 });
