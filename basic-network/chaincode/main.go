@@ -131,11 +131,6 @@ func (s *PeoplechainChaincode) createRecord(APIstub shim.ChaincodeStubInterface,
 		panic(err)
 	}
 
-	dataByte, err := json.Marshal(args[4])
-	if err != nil {
-		panic(err)
-	}
-
 	userPrivateKeyByte, _ := hex.DecodeString(args[2])
 	orgPublicKeyByte, _ := hex.DecodeString(args[3])
 
@@ -143,7 +138,7 @@ func (s *PeoplechainChaincode) createRecord(APIstub shim.ChaincodeStubInterface,
 	copy(key1[:], userPrivateKeyByte)
 	copy(key2[:], orgPublicKeyByte)
 
-	msg := []byte(dataByte)
+	msg := []byte(args[4])
 	encrypted := box.Seal(nonce[:], msg, &nonce, &key2, &key1)
 	hash := hex.EncodeToString(encrypted[:])
 

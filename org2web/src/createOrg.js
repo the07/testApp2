@@ -22,9 +22,9 @@ var fabric_client = new Fabric_Client();
 
 // setup the fabric network
 var channel = fabric_client.newChannel('mychannel');
-var peer = fabric_client.newPeer('grpcs://localhost:7051', {
-	pem: readCryptoFile('peer1.pem'),
-	'ssl-target-name-override': 'peer0.org1.example.com'
+var peer = fabric_client.newPeer('grpcs://localhost:8051', {
+	pem: readCryptoFile('peer2.pem'),
+	'ssl-target-name-override': 'peer0.org2.example.com'
 });
 channel.addPeer(peer);
 var order = fabric_client.newOrderer('grpcs://localhost:7050', {
@@ -114,9 +114,9 @@ Fabric_Client.newDefaultKeyValueStore({ path: store_path
 		// get an eventhub once the fabric client has a user assigned. The user
 		// is required bacause the event registration must be signed
 		let event_hub = fabric_client.newEventHub();
-		event_hub.setPeerAddr('grpcs://localhost:7053', {
-			pem: readCryptoFile('peer1.pem'),
-			'ssl-target-name-override': 'peer0.org1.example.com'
+		event_hub.setPeerAddr('grpcs://localhost:8053', {
+			pem: readCryptoFile('peer2.pem'),
+			'ssl-target-name-override': 'peer0.org2.example.com'
 		});
 
 		// using resolve the promise so that result status may be processed

@@ -66,27 +66,80 @@
     </header>
 
     <div id="body">
+
+      <div class="form-group" id="generate_form">
+        <label>Generate Keys</label>
+        <h5 style="color: red;margin-bottom:2%" id="error_key">Error in generating keys</h5>
+        <br>
+        First Name: <input class="form-control" type="text" ng-model="user.first">
+        Last Name: <input class="form-control" type="text" ng-model="user.last">
+        <input id="generateSubmit" type="submit" value="Generate" class="btn btn-primary" ng-click="generateUserKey()">
+      </div>
+
+      <table id="key" class="table" align="center">
+
+        <tr>
+          <th>Public Key</th>
+          <th>Private Key</th>
+        </tr>
+
+        <tr>
+          <td>{{key.pubkey}}</td>
+          <td>{{key.privkey}}</td>
+        </tr>
+
+      </table>
+
+      <div class="form-group">
+        <label>Create Record</label>
+        <br>
+        <h5 style="color:green;margin-bottom:2%" id="success_create">Success! Tx ID: {{create_record}}</h5>
+        <br>
+        <div id="form-group-gov">
+          Record id: <input class="form-control" type="text" placeholder="Ex: 1" ng-model="record.id">
+          Public Key: <input class="form-control" type="text" placeholder="User Public Key" ng-model="record.pubkey">
+          Private Key: <input class="form-control" type="text" placeholder="User Private Key" ng-model="record.privkey">
+          Org Pub Key: <input class="form-control" type="text" placeholder="Organization Public Key" ng-model="record.orgkey">
+          Aadhar: <input class="form-control" type="text" placeholder="12 digit aadhar" ng-model="record.aadhar">
+          <input id="createSubmit" type="submit" value="Create" class="btn btn-primary" ng-click="createRecord()">
+        </div>
+        <!--
+        <div id="form-group-edu">
+          Institute Id: <input class="form-control" type="text" placeholder="Institute Public Key" ng-model="record.org">
+          Branch: <input class="form-control" type="text" placeholder="Ex: Computer Science" ng-model="record.branch">
+          Grade: <input class="form-control" type="text" placeholder="Ex: 80" ng.model="record.grade">
+          <input id="createSubmit" type="submit" value="Create" class="btn btn-primary" ng-click="createRecord()">
+        </div>
+        <div id="form-group-org">
+          Company Id: <input class="form-control" type="text" placeholder="Company Public Key" ng-model="record.company">
+          Role: <input class="form-control" type="text" placeholder="Ex: Developer" ng-model="record.role">
+          Salary: <input class="form-control" type="text" placeholder="In hand salary" ng-model="record.salary">
+          <input id="createSubmit" type="submit" value="Create" class="btn btn-primary" ng-click="createRecord()">
+        </div>
+        -->
+      </div>
+
       <div class="form-group">
         <label>Query All Records</label>
         <p><input id="queryAllRecord" type="submit" value="Query" class="btn btn-primary" ng-click="queryAllRecord()"></p>
       </div>
 
-      <table id="all_tuna" class="table" align="center">
+      <table id="all_record" class="table" align="center">
 
         <tr>
           <th>ID</th>
           <th>User</th>
-          <th>Timestamp</th>
           <th>Organization</th>
+          <th>Hash</th>
           <th>Status</th>
         </tr>
 
-        <tr ng-repeat="tuna in all_tuna">
-          <td>{{tuna.Key}}</td>
-          <td>{{tuna.user}}</td>
-          <td>{{tuna.timestamp}}</td>
-          <td>{{tuna.organization}}</td>
-          <td>{{tuna.status}}</td>
+        <tr ng-repeat="record in all_record">
+          <td>{{record.Key}}</td>
+          <td>{{record.user}}</td>
+          <td>{{record.organization}}</td>
+          <td>{{record.hash}}</td>
+          <td>{{record.Status}}</td>
         </tr>
       </table>
 
@@ -94,37 +147,26 @@
         <label>Query a Specific Record</label><br>
         <h5 style="color:red;margin-bottom:2%" id="error_query">Error: Please enter a valid Record Id</h5>
 
-        Enter a record number: <input id="createName" class="form-control" type="text" placeholder="Ex: 3" ng-model="tuna_id">
+        Enter a record number: <input id="createName" class="form-control" type="text" placeholder="Ex: 3" ng-model="record_id">
         <input id="querySubmit" type="submit" value="Query" class="btn btn-primary" ng-click="queryRecord()">
       </div>
 
-      <table id="query_tuna" class="table" align="center">
+      <table id="query_record" class="table" align="center">
 
         <tr>
           <th>User</th>
-          <th>Timestamp</th>
           <th>Organization</th>
+          <th>Hash</th>
           <th>Status</th>
         </tr>
 
         <tr>
-          <td>{{query_tuna.user}}</td>
-          <td>{{query_tuna.timestamp}}</td>
-          <td>{{query_tuna.organization}}</td>
-          <td>{{query_tuna.status}}</td>
+          <td>{{query_record.user}}</td>
+          <td>{{query_record.organization}}</td>
+          <td>{{query_record.hash}}</td>
+          <td>{{query_record.Status}}</td>
         </tr>
       </table>
-
-      <div class="form-group">
-        <label>Create Record</label>
-        <h5 style="color:green;margin-bottom:2%" id="success_create">Success! Tx ID: {{create_tuna}}</h5>
-        <br>
-        Enter id: <input class="form-control" type="text" placeholder="Ex: 11" ng-model="tuna.id">
-        Enter name: <input class="form-control" type="text" placeholder="Ex: Gaurav" ng-model="tuna.user">
-        Enter timestamp: <input class="form-control" type="text" placeholder="Ex: 4982342301" ng-model="tuna.timestamp">
-        Enter organization: <input class="form-control" type="text" placeholder="Ex: Heptagon" ng-model="tuna.organization">
-        <input id="createSubmit" type="submit" value="Create" class="btn btn-primary" ng-click="createRecord()">
-      </div>
 
     </div>
   </body>

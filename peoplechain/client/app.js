@@ -11,6 +11,7 @@ app.controller('appController', function($scope, appFactory){
 	$("#success_create").hide();
 	$("#error_holder").hide();
 	$("#error_query").hide();
+	$("#error_key").hide();
 
 	$scope.queryAllRecord = function(){
 
@@ -24,31 +25,39 @@ app.controller('appController', function($scope, appFactory){
 			array.sort(function(a, b) {
 			    return parseFloat(a.Key) - parseFloat(b.Key);
 			});
-			$scope.all_tuna = array;
+			$scope.all_record = array;
 		});
 	}
 
-	$scope.queryRecord = function(){
+	$scope.generateUserKey = function() {
 
-		var id = $scope.tuna_id;
+		appFactory.generateUserKey($scope.user, function(data){
+			$scope.key = data;
+			$("#generate_form").hide();
+		});
+	}
+
+	$scope.createRecord = function() {
+
+		appFactory.createRecord($scope.record, function(data){
+			$scope.create_record = data;
+			$("#success_create").show();
+		})
+	}
+	
+	$scope.queryRecord = function() {
+
+		var id = $scope.record_id;
 
 		appFactory.queryRecord(id, function(data){
-			$scope.query_tuna = data;
+			$scope.query_record = data;
 
-			if ($scope.query_tuna == "Could not locate tuna"){
-				console.log()
+			if ($scope.query_record == "Could not locate record") {
+				console.log();
 				$("#error_query").show();
-			} else{
+			} else {
 				$("#error_query").hide();
 			}
-		});
-	}
-
-	$scope.createRecord = function(){
-
-		appFactory.createRecord($scope.tuna, function(data){
-			$scope.create_tuna = data;
-			$("#success_create").show();
 		});
 	}
 
@@ -59,24 +68,38 @@ app.factory('appFactory', function($http){
 
 	var factory = {};
 
-    factory.queryAllRecord = function(callback){
-
-    	$http.get('/get_all_record/').success(function(output){
+  	factory.queryAllRecord = function(callback){
+  		$http.get('/get_all_record').success(function(output){
 			callback(output)
 		});
 	}
 
-	factory.queryRecord = function(id, callback){
-    	$http.get('/get_record/'+id).success(function(output){
+	factory.generateUserKey = function(data, callback){
+		var user = data.first + "-" + data.last;
+		$http.get('/generate_key/'+user).success(function(output){
 			callback(output)
 		});
 	}
 
 	factory.createRecord = function(data, callback){
+		var record = data.id + "-" + data.pubkey + "-" + data.privkey + "-" + data.orgkey;
+		
+		var record_data = {};
+		for (var i=4; i < Object.keys(data).length; i++) {
+			record_data[Object.keys(data)[i]] = data[Object.keys(data)[i]];
+		}
+		
+		console.log(JSON.stringify(record_data));
 
-		var record = data.id + "-" + data.user + "-" + data.timestamp + "-" + data.organization;
+		record = record + "-" + JSON.stringify(record_data);
 
-    	$http.get('/add_record/'+record).success(function(output){
+		$http.get('/create_record/'+record).success(function(output){
+			callback(output)
+		});
+	}
+
+	factory.queryRecord = function(id, callback) {
+		$http.get('/get_record/'+id).success(function(output){
 			callback(output)
 		});
 	}
