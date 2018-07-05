@@ -17,7 +17,7 @@ require('./routes.js')(app);
 
 app.use(express.static(path.join(__dirname, './client')));
 
-var port = process.env.PORT || 8000;
+var port = process.env.PORT || 8001;
 
 app.listen(port, function(){
   console.log("Live on port: " + port);
