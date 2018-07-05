@@ -114,7 +114,7 @@
         <br>
         Enter the record Id: <input ng-model="decrypt.id" type="text" placeholder="Ex: 1" class="form-control">
         Enter your private key: <input ng-model="decrypt.key" type="text" class="form-control">
-        <input id="decryptRecord" type="submit" class="btn btn-primary" value="Decrypt" ng-class="decryptRecord()">
+        <input id="decryptRecord" type="submit" class="btn btn-primary" value="Decrypt" ng-click="decryptRecord()">
       </div>
 
       <table id="dec_record">
@@ -125,6 +125,17 @@
           <td>{{decrypt_data}}</td>
         </tr>
       </table>
+      <br>
+      <br>
+      <div class="form-group">
+        <label>Sign Record</label>
+        <h5 style="color:green;margin-bottom:2%" id="success_sign">Success! Tx ID: {{tx_id}}</h5>
+        <br>
+        Enter the record id: <input type="text" placeholder="Ex: 1" class="form-control" ng-model="sign_id">
+        <input type="submit" id="signRecord" class="btn btn-primary" value="Sign" ng-click="signRecord()">
+        <input type="submit" id="declineRecord" class="btn btn-primary" value="Decline" ng-click="declineRecord()">
+      </div>
+
 
     </div>
   </body>

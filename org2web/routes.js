@@ -13,4 +13,12 @@ module.exports = function(app){
     app.get('/decrypt_record/:data', function(req, res){
         peoplechain.decrypt_record(req, res);
     });
+
+    app.get('/sign_record/:id', function(req, res){
+        peoplechain.sign_record(req, res);
+    });
+
+    app.get('/decline_record/:id', function(req, res){
+        peoplechain.decline_record(req, res);
+    });
 }

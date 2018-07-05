@@ -6,6 +6,7 @@ app.controller('appController', function($scope, appFactory){
 
     $("#error_query").hide();
     $("#error_key").hide();
+    $("#success_sign").hide();
 
     $scope.rows = [];
 
@@ -44,7 +45,26 @@ app.controller('appController', function($scope, appFactory){
         var decrypt = $scope.decrypt;
         appFactory.decryptRecord(decrypt, function(data){
             $scope.decrypt_data = data;
-        })
+        });
+    }
+
+    $scope.signRecord = function() {
+
+        var id = $scope.sign_id;
+        appFactory.signRecord(id, function(data){
+            // transaction id is returned
+            $scope.tx_id = data;
+            $("#success_sign").show();
+        });
+    }
+
+    $scope.declineRecord = function() {
+
+        var id = $scope.sign_id;
+        appFactory.declineRecord(id, function(data){
+            $scope.tx_id = data;
+            $("#success_sign").show();
+        });
     }
 });
 
@@ -67,6 +87,18 @@ app.factory('appFactory', function($http){
     factory.decryptRecord = function(data, callback){
         var x = data.id + "-" + data.key;
         $http.get('/decrypt_record/'+x).success(function(output){
+            callback(output);
+        });
+    }
+
+    factory.signRecord = function(id, callback){
+        $http.get('/sign_record/'+id).success(function(output){
+            callback(output);
+        });
+    }
+
+    factory.declineRecord = function(id, callback){
+        $http.get('/decline_record/'+id).success(function(output){
             callback(output);
         });
     }
