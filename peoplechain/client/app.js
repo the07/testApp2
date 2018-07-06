@@ -39,10 +39,23 @@ app.controller('appController', function($scope, appFactory){
 
 	$scope.createRecord = function() {
 
-		appFactory.createRecord($scope.record, function(data){
-			$scope.create_record = data;
-			$("#success_create").show();
-		})
+
+		var array = $scope.private;
+		var array_record = $scope.record;
+
+		var private_data = {};
+
+		for (var i = 0; i < Object.keys(array).length; i++){
+			// Object.keys(array)[i]
+			private_data[Object.keys(array)[i]] = array_record[Object.keys(array)[i]];
+			delete array_record[Object.keys(array)[i]];
+		}		
+		console.log(array_record);
+		console.log(private_data);
+		// appFactory.createRecord($scope.record, function(data){
+		//	$scope.create_record = data;
+		//	$("#success_create").show();
+		//});
 	}
 	
 	$scope.queryRecord = function() {
@@ -59,6 +72,12 @@ app.controller('appController', function($scope, appFactory){
 				$("#error_query").hide();
 			}
 		});
+	}
+
+	$scope.testPrivate = function() {
+
+		var array = $scope.private;
+		console.log(array);
 	}
 
 });

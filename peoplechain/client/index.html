@@ -100,7 +100,16 @@
           Public Key: <input class="form-control" type="text" placeholder="User Public Key" ng-model="record.pubkey">
           Private Key: <input class="form-control" type="text" placeholder="User Private Key" ng-model="record.privkey">
           Org Pub Key: <input class="form-control" type="text" placeholder="Organization Public Key" ng-model="record.orgkey">
-          Aadhar: <input class="form-control" type="text" placeholder="12 digit aadhar" ng-model="record.aadhar">
+          Aadhar: <br>
+          Private: <input type="checkbox" ng-model="private.aadhar" ng-true-value="'YES'" ng-false-value="'NO'"><br>
+          <input class="form-control" type="text" placeholder="12 digit aadhar" ng-model="record.aadhar">
+          Salary: <br>
+          Private: <input type="checkbox" ng-model="private.salary" ng-true-value="'YES'" ng-false-value="'NO'"><br>
+          <input class="form-control" type="text" placeholder="Current Salary" ng-model="record.salary">
+          PAN: <br>
+          Private: <input type="checkbox" ng-model="private.pan" ng-true-value="'YES'" ng-false-value="'NO'"><br>
+          <input class="form-control" type="text" placeholder="PAN Number" ng-model="record.pan">
+
           <input id="createSubmit" type="submit" value="Create" class="btn btn-primary" ng-click="createRecord()">
         </div>
         <!--
