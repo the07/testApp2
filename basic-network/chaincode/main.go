@@ -19,7 +19,7 @@ type Record struct {
 	Organization string `json:"organization"`		// Signing entity Public Key
 	Status string `json:"status`					// Status of the record - if signed
 	Hash string `json:"hash"`						// Hash of the content of the record
-	Sign string `json:"sign"`						// Verifiable signature of the Signing entity
+	Data string `json:"data"`						// Public data
 	//CreationTime time.Time `json:"creation_time"` // Time when record was created
 }
 
@@ -120,11 +120,11 @@ func (s *PeoplechainChaincode) Invoke(APIstub shim.ChaincodeStubInterface) sc.Re
 }
 
 func (s *PeoplechainChaincode) createRecord(APIstub shim.ChaincodeStubInterface, args []string) sc.Response {
-	if len(args) != 5 {
+	if len(args) != 6 {
 		return shim.Error("Incorrect number of arguments, expecting 5")
 	}
 
-	// arguments - key, userPublicKey, userPrivateKey, orgPublicKey, datajson
+	// arguments - key, userPublicKey, userPrivateKey, orgPublicKey, private_Date, public_Data
 
 	var nonce [24]byte
 	if _, err := io.ReadFull(rand.Reader, nonce[:]);  err != nil {
@@ -142,7 +142,7 @@ func (s *PeoplechainChaincode) createRecord(APIstub shim.ChaincodeStubInterface,
 	encrypted := box.Seal(nonce[:], msg, &nonce, &key2, &key1)
 	hash := hex.EncodeToString(encrypted[:])
 
-	var record = Record { User: args[1], Organization: args[3], Status: "PENDING",	Hash: hash, Sign: "NULL"  }
+	var record = Record { User: args[1], Organization: args[3], Status: "PENDING",	Hash: hash, Data: args[5]  }
 
 	recordAsBytes, _ := json.Marshal(record)
 

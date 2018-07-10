@@ -264,12 +264,13 @@ module.exports = (function() {
         var pubkey = array[1];
         var privkey = array[2];
         var orgkey = array[3];
-        var data = array[4];
+        var private_data = array[4];
+        var public_data = array[5];
 
         var request = {
           chaincodeId: 'peoplechain',
           fcn: 'createRecord',
-          args: [id, pubkey, privkey, orgkey, data],
+          args: [id, pubkey, privkey, orgkey, private_data, public_data],
           txId: tx_id,
         };
 

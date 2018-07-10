@@ -45,6 +45,8 @@ app.controller('appController', function($scope, appFactory){
 
 		var private_data = {};
 
+		// Split the private and public data
+
 		for (var i = 0; i < Object.keys(array).length; i++){
 			// Object.keys(array)[i]
 			private_data[Object.keys(array)[i]] = array_record[Object.keys(array)[i]];
@@ -52,10 +54,22 @@ app.controller('appController', function($scope, appFactory){
 		}		
 		console.log(array_record);
 		console.log(private_data);
-		// appFactory.createRecord($scope.record, function(data){
-		//	$scope.create_record = data;
-		//	$("#success_create").show();
-		//});
+
+		// Add private and public data items as string
+		var record = array_record.id + "-" + array_record.pubkey + "-" + array_record.privkey + "-" + array_record.orgkey;
+		var record_data = {};
+		for (var j=4; j < Object.keys(array_record).length; j++) {
+			record_data[Object.keys(array_record)[j]] = array_record[Object.keys(array_record)[j]];
+		}
+
+		record = record + "-" + JSON.stringify(private_data);
+		record = record + "-" + JSON.stringify(record_data);
+
+		// Send the string to factory
+		appFactory.createRecord(record, function(data){
+			$scope.create_record = data;
+			$("#success_create").show();
+		});
 	}
 	
 	$scope.queryRecord = function() {
@@ -72,12 +86,6 @@ app.controller('appController', function($scope, appFactory){
 				$("#error_query").hide();
 			}
 		});
-	}
-
-	$scope.testPrivate = function() {
-
-		var array = $scope.private;
-		console.log(array);
 	}
 
 });
@@ -101,18 +109,8 @@ app.factory('appFactory', function($http){
 	}
 
 	factory.createRecord = function(data, callback){
-		var record = data.id + "-" + data.pubkey + "-" + data.privkey + "-" + data.orgkey;
-		
-		var record_data = {};
-		for (var i=4; i < Object.keys(data).length; i++) {
-			record_data[Object.keys(data)[i]] = data[Object.keys(data)[i]];
-		}
-		
-		console.log(JSON.stringify(record_data));
 
-		record = record + "-" + JSON.stringify(record_data);
-
-		$http.get('/create_record/'+record).success(function(output){
+		$http.get('/create_record/'+data).success(function(output){
 			callback(output)
 		});
 	}
