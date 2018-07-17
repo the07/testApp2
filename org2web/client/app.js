@@ -7,6 +7,7 @@ app.controller('appController', function($scope, appFactory){
     $("#error_query").hide();
     $("#error_key").hide();
     $("#success_sign").hide();
+    $("#access_request").hide();
 
     $scope.rows = [];
 
@@ -66,6 +67,22 @@ app.controller('appController', function($scope, appFactory){
             $("#success_sign").show();
         });
     }
+
+    $scope.requestAccess = function() {
+
+        appFactory.requestAccess($scope.request, function(data) {
+            $scope.access_id = data;
+            $("#access_request").show();
+        });
+    }
+
+    $scope.decryptR = function() {
+
+        console.log("testing....")
+        appFactory.decryptR($scope.deaccess, function(data) {
+            $scope.decryptR_data = data;
+        })
+    }
 });
 
 app.factory('appFactory', function($http){
@@ -99,6 +116,22 @@ app.factory('appFactory', function($http){
 
     factory.declineRecord = function(id, callback){
         $http.get('/decline_record/'+id).success(function(output){
+            callback(output);
+        });
+    }
+
+    factory.requestAccess = function(data, callback){
+
+        var request = data.id + "-" + data.org;
+        $http.get('/request_access/'+request).success(function(output){
+            callback(output);
+        });
+    }
+
+    factory.decryptR = function(data, callback){
+        var x = data.id + "-" + data.pub + "-" + data.priv + "-" + data.user;
+        console.log(x);
+        $http.get('/decrypt_request_access/'+x).success(function(output){
             callback(output);
         });
     }

@@ -181,6 +181,17 @@
         </tr>
       </table>
 
+      <div class="form-group">
+        <label>Accept/Decline Record Access</label>
+        <h5 style="color: green;margin-bottom: 2%" id="access_sign">Successfull, transaction id: {{access_sign_id}}</h5>
+        
+        Record Id: <input class="form-control" placeholder="Ex: 1" type="text" ng-model="access.id">
+        Organization: <input class="form-control" placeholder="Enter Organization Public Key" type="text" ng-model="access.org">
+        Private Key: <input class="form-control" placeholder="Enter user private key" type="text" ng-model="access.priv">
+        <input type="submit" class="btn btn-primary" value="Allow" ng-click="allowAccess()">
+        <input type="submit" class="btn btn-primary" value="Decline" ng-click="declineAccess()">
+      </div>
+
     </div>
   </body>
     <!-- requiring the angular page -->

@@ -98,6 +98,7 @@
           <th>Id</th>
           <th>User</th>
           <th>Hash</th>
+          <th>Data</th>
           <th>Status</th>
         </tr>
 
@@ -105,6 +106,7 @@
           <td>{{record.Key}}</td>
           <td>{{record.user}}</td>
           <td>{{record.hash}}</td>
+          <td>{{record.data}}</td>
           <td>{{record.Status}}</td>
         </tr>
       </table>
@@ -136,6 +138,38 @@
         <input type="submit" id="declineRecord" class="btn btn-primary" value="Decline" ng-click="declineRecord()">
       </div>
 
+      <div class="form-group">
+        <label>Request Access</label>
+        <h5 style="color: green; margin-bottom: 2%" id="access_request">Success! Tx ID: {{access_id}}</h5>
+        <br>
+        Enter the record Id: <input ng-model="request.id" type="text" placeholder="Ex: 1" class="form-control">
+        Organization: <input ng-model="request.org" type="text" placeholder="Organization Public Key" class="form-control">
+        <input id="requestAccess" type="submit" class="btn btn-primary" value="Request" ng-click="requestAccess()">
+      </div>
+
+      <div class="form-group">
+        <label>Decypt Request Access</label>
+        <br>
+        Id: <input type="text" placeholder="Ex:1" class="form-control" ng-model="deaccess.id">
+        Organization: <input type="text" placeholder="Organization public key" class="form-control" ng-model="deaccess.pub">
+        Private Key: <input type="text" placeholder="Org Private Key" class="form-control" ng-model="deaccess.priv">
+        User Key: <input type="text" placeholder="User Public Key" class="form-control" ng-model="deaccess.user">
+        <input id="decryptR" type="submit" class="btn btn-primary" value="Decrypt" ng-click="decryptR()"> 
+      </div>
+
+      <table>
+        <tr>
+          <th>
+            Data
+          </th>
+        </tr>
+
+        <tr>
+          <th>
+            {{decryptR_data}}
+          </th>
+        </tr>
+      </table>
 
     </div>
   </body>

@@ -64,9 +64,6 @@ type Payment struct {
 }
 
 type RecordAccess struct {
-	Id string `json:"id"`
-	PublicKey string `json:"public_key"` //one who has signed the record
-	OrgPublicKey string `json:"org_public_key"` //one who is requesting access
 	Data string `json:"data"`
 	Status string `json:"status"`
 }
@@ -410,10 +407,7 @@ func (s *PeoplechainChaincode) requestAccess(APIstub shim.ChaincodeStubInterface
 		return shim.Error("Record Not Found")
 	}
 
-	record := Record{}
-	json.Unmarshal(recordAsByte, &record)
-
-	recordAccess := RecordAccess{ Id: args[0], PublicKey: record.Organization, OrgPublicKey: args[1], Data: "NULL", Status: "PENDING"}
+	recordAccess := RecordAccess{  Data: "NULL", Status: "PENDING"}
 	recordAccessAsByte, _ := json.Marshal(recordAccess)
 	attributes := []string{args[0], args[1]}
 	key, _ := APIstub.CreateCompositeKey("ra", attributes)
@@ -427,7 +421,7 @@ func (s *PeoplechainChaincode) requestAccess(APIstub shim.ChaincodeStubInterface
 }
 
 func (s *PeoplechainChaincode) grantAccess(APIstub shim.ChaincodeStubInterface, args []string) sc.Response {
-	if len(args) != 3 {
+	if len(args) != 4 {
 		return shim.Error("Incorrect number of arguments")
 	}
 
@@ -449,53 +443,29 @@ func (s *PeoplechainChaincode) grantAccess(APIstub shim.ChaincodeStubInterface, 
 
 	recordAccess.Status = "GRANTED"
 
-	recordAsByte, _ := APIstub.GetState(args[0])
-	record := Record{}
-	json.Unmarshal(recordAsByte, &record)
+	userPrivKeyByte, _ := hex.DecodeString(args[3])
+	orgPubKeyByte, _ := hex.DecodeString(args[1])
 
-	hash := record.Hash
-	var decryptNonce [24]byte
+	var key1, key2 [32]byte
 
-	hashByte, _ := hex.DecodeString(hash)
-	copy(decryptNonce[:], hashByte[:24])
+	copy(key1[:], userPrivKeyByte)
+	copy(key2[:], orgPubKeyByte)
 
-	var key1, key2, key3 [32]byte
-	key1Byte, _ := hex.DecodeString(record.User)
-	key2Byte, _ := hex.DecodeString(args[2])
-	key3Byte, _ := hex.DecodeString(args[1])
+	msg := []byte(args[2])
+	encrypted := box.Seal(nonce[:], msg, &nonce, &key2, &key1)
+	hash := hex.EncodeToString(encrypted[:])
 
-	copy(key1[:], key1Byte)
-	copy(key2[:], key2Byte)
-	copy(key3[:], key3Byte)
+	recordAccess.Data = hash
 
-	decrypted, ok := box.Open(nil, hashByte[24:], &decryptNonce, &key1, &key2)
-	if !ok {
-		return shim.Error("Failed to decrypt")
-	}
-
-	encrypted := box.Seal(nonce[:], []byte(decrypted), &nonce, &key3, &key2)
-	msg := hex.EncodeToString(encrypted[:])
-
-	recordAccess.Data = msg
 	recordAccessAsBytes, _ := json.Marshal(recordAccess)
 
-	err2 := APIstub.PutState(key, recordAccessAsBytes)
-
-	if err2 != nil {
-		return shim.Error("Failed to grant access")
-	}
-
-	payment := Payment{ From: args[1], To: record.User, Amount: 50}
-	paymentAsByte, _ := json.Marshal(payment)
-
-	paymentAttr := []string{payment.To, payment.From}
-	payKey, _ := APIstub.CreateCompositeKey("payment", paymentAttr)
-
-	err1 := APIstub.PutState(payKey, paymentAsByte)
+	err1 := APIstub.PutState(key, recordAccessAsBytes)
 	if err1 != nil {
-		return shim.Error("Unable to create payment record")
+		return shim.Error(fmt.Sprintf("Failed to grant record access: %s", err1))
 	}
-	return shim.Success(recordAccessAsBytes)
+
+	return shim.Success(nil);
+
 }
 
 func (s *PeoplechainChaincode) revokeAccess(APIstub shim.ChaincodeStubInterface, args []string) sc.Response {
@@ -525,7 +495,7 @@ func (s *PeoplechainChaincode) revokeAccess(APIstub shim.ChaincodeStubInterface,
 }
 
 func (s *PeoplechainChaincode) decryptRecordAccess(APIstub shim.ChaincodeStubInterface, args []string) sc.Response {
-	if len(args) != 3 {
+	if len(args) != 4 {
 		return shim.Error("Incorrect number of arguments")
 	}
 
@@ -538,7 +508,11 @@ func (s *PeoplechainChaincode) decryptRecordAccess(APIstub shim.ChaincodeStubInt
 	}
 
 	recordAccess := RecordAccess{}
-	json.Unmarshal(recordAccessAsByte, &recordAccess)
+	err := json.Unmarshal(recordAccessAsByte, &recordAccess)
+
+	if err != nil {
+		return shim.Error("Unmarshal error")
+	}
 
 	hash := recordAccess.Data
 	var decryptNonce [24]byte
@@ -550,7 +524,7 @@ func (s *PeoplechainChaincode) decryptRecordAccess(APIstub shim.ChaincodeStubInt
 	copy(decryptNonce[:], hashByte[:24])
 
 	var key1, key2 [32]byte
-	key1Byte, _ := hex.DecodeString(recordAccess.PublicKey)
+	key1Byte, _ := hex.DecodeString(args[3])
 	key2Byte, _ := hex.DecodeString(args[2])
 
 	copy(key1[:], key1Byte)
@@ -561,7 +535,8 @@ func (s *PeoplechainChaincode) decryptRecordAccess(APIstub shim.ChaincodeStubInt
 		return shim.Error("Failed to decrypt")
 	}
 
-	return shim.Success(decrypted)
+	data := []byte(decrypted)
+	return shim.Success(data)
 
 }
 

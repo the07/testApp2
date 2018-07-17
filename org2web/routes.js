@@ -21,4 +21,12 @@ module.exports = function(app){
     app.get('/decline_record/:id', function(req, res){
         peoplechain.decline_record(req, res);
     });
+
+    app.get('/request_access/:request', function(req, res){
+        peoplechain.request_access(req, res);
+    });
+
+    app.get('/decrypt_request_access/:data', function(req, res){
+        peoplechain.decrypt_record_access(req, res);
+    });
 }

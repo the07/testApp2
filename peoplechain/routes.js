@@ -17,4 +17,12 @@ module.exports = function(app) {
     peoplechain.get_record(req, res);
   });
 
+  app.get('/grant_access/:details', function(req, res){
+    peoplechain.grant_access(req, res);
+  });
+
+  app.get('/decline_access/:details', function(req, res){
+    peoplechain.decline_access(req, res);
+  });
+
 }
